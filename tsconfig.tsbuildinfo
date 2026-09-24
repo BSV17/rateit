@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/supabaseclient.ts","./src/types.ts","./src/utils.ts","./src/vite-env.d.ts","./src/components/barcodescanner.tsx","./src/services/backup.ts","./src/services/productlookup.ts","./src/storage/database.ts"],"version":"5.6.3"}
