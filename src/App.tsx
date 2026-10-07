@@ -437,8 +437,8 @@ function ProductForm({
       <SectionHeader title={product ? 'Редагування' : external ? 'Додати знайдений товар' : 'Новий товар'} action="Скасувати" onAction={onCancel} />
       {external && (
         <div className="notice">
-          <strong>Товар знайдено</strong>
-          <span>{external.brand ? `${external.brand} · ` : ''}{external.source}</span>
+          <strong>Можливий збіг</strong>
+          <span>Перевірте назву й фото перед збереженням.</span>
         </div>
       )}
       <div className="form-card">
