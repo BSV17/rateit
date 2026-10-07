@@ -1,5 +1,5 @@
 import { ArrowLeft, Camera, Folder, Home, Plus, Search, Settings, SunMoon } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import type { Category, ExternalProduct, Product, ProductDraft, ScanResult, ThemePreference } from './types'
 import { db } from './storage/database'
@@ -33,6 +33,7 @@ export default function App() {
   const [loading, setLoading] = useState(true)
   const [toast, setToast] = useState('')
   const [theme, setTheme] = useState<ThemePreference>(() => (localStorage.getItem(themeKey) as ThemePreference) || 'system')
+  const [keyboardOpen, setKeyboardOpen] = useState(false)
 
   const categoryMap = useMemo(() => new Map(categories.map((category) => [category.id, category])), [categories])
   const recentProducts = useMemo(
@@ -55,6 +56,31 @@ export default function App() {
     localStorage.setItem(themeKey, theme)
     document.documentElement.dataset.theme = theme
   }, [theme])
+
+  useEffect(() => {
+    let focusTimer: number | undefined
+
+    function isEditable(target: EventTarget | null) {
+      return target instanceof HTMLElement && Boolean(target.closest('input, textarea, select, [contenteditable="true"]'))
+    }
+
+    function handleFocusIn(event: FocusEvent) {
+      if (focusTimer) window.clearTimeout(focusTimer)
+      if (isEditable(event.target)) setKeyboardOpen(true)
+    }
+
+    function handleFocusOut() {
+      focusTimer = window.setTimeout(() => setKeyboardOpen(false), 120)
+    }
+
+    document.addEventListener('focusin', handleFocusIn)
+    document.addEventListener('focusout', handleFocusOut)
+    return () => {
+      if (focusTimer) window.clearTimeout(focusTimer)
+      document.removeEventListener('focusin', handleFocusIn)
+      document.removeEventListener('focusout', handleFocusOut)
+    }
+  }, [])
 
   function showToast(message: string) {
     setToast(message)
@@ -91,7 +117,7 @@ export default function App() {
     (view.name === 'product' || view.name === 'edit') ? products.find((product) => product.id === view.id) : undefined
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${keyboardOpen ? 'keyboard-open' : ''}`}>
       <header className="topbar">
         <button className="brand" onClick={() => setView({ name: 'home' })} aria-label="RateIt">
           <span className="brand-mark">R</span>
@@ -358,12 +384,12 @@ function ScanView({
   const [manual, setManual] = useState('')
   const [loading, setLoading] = useState(false)
 
-  async function submitBarcode(barcode: string) {
+  const submitBarcode = useCallback(async (barcode: string) => {
     if (!barcode) return
     setLoading(true)
     onResult(await onScan(barcode).catch(() => ({ status: 'error', barcode, message: 'Не вдалося знайти товар автоматично.' } as ScanResult)))
     setLoading(false)
-  }
+  }, [onResult, onScan])
 
   return (
     <section className="stack">

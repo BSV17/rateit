@@ -10,30 +10,49 @@ export function BarcodeScanner({ onDetected }: { onDetected: (barcode: string) =
     let active = true
     const reader = new BrowserMultiFormatReader()
     let scannerControls: IScannerControls | null = null
+    let stream: MediaStream | null = null
 
     function stopCamera() {
       scannerControls?.stop()
-      const stream = videoRef.current?.srcObject
-      if (stream instanceof MediaStream) {
-        stream.getTracks().forEach((track) => track.stop())
+      stream?.getTracks().forEach((track) => track.stop())
+      const videoStream = videoRef.current?.srcObject
+      if (videoStream instanceof MediaStream) {
+        videoStream.getTracks().forEach((track) => track.stop())
       }
       if (videoRef.current) videoRef.current.srcObject = null
+      stream = null
     }
 
-    reader
-      .decodeFromVideoDevice(undefined, videoRef.current!, (result, error, controls) => {
-        scannerControls = controls
-        if (!active) return
-        if (result) {
+    async function startCamera() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: 'environment' } },
+          audio: false,
+        })
+        if (!active || !videoRef.current) {
           stopCamera()
-          setMessage('Штрихкод зчитано')
-          onDetected(result.getText())
+          return
         }
-        if (error) setMessage('Наведіть камеру на штрихкод')
-      })
-      .catch(() => {
-        setMessage('Камера недоступна. Введіть штрихкод вручну.')
-      })
+
+        scannerControls = await reader.decodeFromStream(stream, videoRef.current, (result, error) => {
+          if (!active) return
+          if (result) {
+            const barcode = result.getText()
+            active = false
+            setMessage('Штрихкод зчитано')
+            stopCamera()
+            onDetected(barcode)
+            return
+          }
+          if (error) setMessage('Наведіть камеру на штрихкод')
+        })
+      } catch {
+        stopCamera()
+        if (active) setMessage('Камера недоступна. Введіть штрихкод вручну.')
+      }
+    }
+
+    startCamera()
 
     return () => {
       active = false

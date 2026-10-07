@@ -585,6 +585,14 @@ h2 {
   color: var(--accent);
 }
 
+.keyboard-open main {
+  padding-bottom: 18px;
+}
+
+.keyboard-open .bottom-nav {
+  display: none;
+}
+
 .toast {
   position: fixed;
   left: 50%;
