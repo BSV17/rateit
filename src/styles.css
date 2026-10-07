@@ -256,7 +256,11 @@ h2 {
   width: 100%;
   aspect-ratio: 1 / 0.78;
   border-radius: 12px;
-  object-fit: cover;
+}
+
+.product-card img {
+  object-fit: contain;
+  background: var(--surface-strong);
 }
 
 .product-card strong {
@@ -390,14 +394,25 @@ h2 {
 }
 
 .image-picker img,
-.image-picker .image-placeholder,
-.product-detail > img,
-.product-detail > .image-placeholder {
+.image-picker .image-placeholder {
   width: 100%;
   max-height: 420px;
   aspect-ratio: 1 / 0.72;
   border-radius: 22px;
   object-fit: cover;
+}
+
+.product-detail > img,
+.product-detail > .image-placeholder {
+  width: 100%;
+  max-height: min(62vh, 560px);
+  aspect-ratio: 1 / 0.72;
+  border-radius: 22px;
+}
+
+.product-detail > img {
+  object-fit: contain;
+  background: var(--surface-strong);
 }
 
 .image-placeholder {

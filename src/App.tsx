@@ -5,7 +5,7 @@ import type { Category, ExternalProduct, Product, ProductDraft, ScanResult, Them
 import { db } from './storage/database'
 import { exportJson, exportZip, readBackup, restoreBackup } from './services/backup'
 import { productLookupService } from './services/productLookup'
-import { fileToDataUrl, normalizeBarcode, productMatches, urlToDataUrl } from './utils'
+import { fileToDataUrl, normalizeBarcode, productMatches } from './utils'
 import { BarcodeScanner } from './components/BarcodeScanner'
 
 type View =
@@ -399,7 +399,7 @@ function ProductForm({
   const [categoryId, setCategoryId] = useState(product?.categoryId ?? categories[0]?.id ?? '')
   const [rating, setRating] = useState(product?.rating ?? 8)
   const [note, setNote] = useState(product?.note ?? '')
-  const [imagePath, setImagePath] = useState(product?.imagePath ?? external?.imageUrl ?? '')
+  const [imagePath, setImagePath] = useState(product?.imagePath ?? '')
   const [newCategory, setNewCategory] = useState('')
   const [busy, setBusy] = useState(false)
 
@@ -412,10 +412,6 @@ function ProductForm({
 
   async function save() {
     setBusy(true)
-    let storedImage = imagePath
-    if (external?.imageUrl && imagePath === external.imageUrl) {
-      storedImage = (await urlToDataUrl(external.imageUrl)) ?? external.imageUrl
-    }
     await onSave({
       id: product?.id,
       name,
@@ -423,7 +419,7 @@ function ProductForm({
       categoryId,
       rating,
       note,
-      imagePath: storedImage || null,
+      imagePath: imagePath || null,
       externalSource: external?.source ?? product?.externalSource ?? null,
       externalProductId: external?.externalId ?? product?.externalProductId ?? null,
       externalMetadata: external?.metadata ?? product?.externalMetadata ?? null,

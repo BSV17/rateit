@@ -13,8 +13,6 @@ interface FactsProductResponse {
     generic_name?: string
     abbreviated_product_name?: string
     brands?: string
-    image_front_url?: string
-    image_url?: string
     quantity?: string
     categories?: string
   }
@@ -24,13 +22,11 @@ function mapFactsProduct(source: string, barcode: string, data: FactsProductResp
   if (!data || data.status !== 1 || !data.product) return null
   const product = data.product
   const name = cleanExternalName(product.product_name || product.generic_name || product.abbreviated_product_name)
-  const imageUrl = product.image_front_url || product.image_url
-  if (!name || !imageUrl) return null
+  if (!name) return null
   return {
     barcode,
     name,
     brand: product.brands || undefined,
-    imageUrl,
     source,
     externalId: product._id || barcode,
     metadata: {
@@ -44,7 +40,16 @@ function mapFactsProduct(source: string, barcode: string, data: FactsProductResp
 function cleanExternalName(value?: string) {
   const name = value?.replace(/\s+/g, ' ').trim()
   if (!name || name.length < 3 || name.length > 120) return null
+  if (!isSupportedNameLanguage(name)) return null
   return name
+}
+
+function isSupportedNameLanguage(name: string) {
+  const letters = [...name].filter((char) => /\p{L}/u.test(char))
+  if (!letters.length) return false
+
+  const supportedLetters = letters.filter((char) => /[\p{Script=Latin}\p{Script=Cyrillic}]/u.test(char))
+  return supportedLetters.length / letters.length >= 0.85
 }
 
 class OpenFoodFactsProvider implements ProductLookupProvider {
