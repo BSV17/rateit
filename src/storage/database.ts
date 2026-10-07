@@ -1,5 +1,6 @@
 import type { Category, Product, ProductDraft } from '../types'
 import { nowIso, uid } from '../utils'
+import { cloudDb } from './cloudDatabase'
 
 const DB_NAME = 'rateit-db'
 const DB_VERSION = 1
@@ -51,7 +52,7 @@ async function deleteById(name: string, id: string) {
   await store<undefined>(name, 'readwrite', (objectStore) => objectStore.delete(id))
 }
 
-export const db = {
+const localDb = {
   async seedIfEmpty() {
     if (seedPromise) return seedPromise
     seedPromise = this.seedIfEmptyOnce().then(() => this.normalizeDemoData())
@@ -221,3 +222,5 @@ export const db = {
 function normalizeCategoryName(name: string) {
   return name.trim().replace(/\s+/g, ' ').toLowerCase()
 }
+
+export const db = import.meta.env.PROD ? cloudDb : localDb

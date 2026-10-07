@@ -1,0 +1,8 @@
+name = "rateit"
+compatibility_date = "2026-10-07"
+pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "rateit-db"
+database_id = "2051ce5c-5f21-41f0-b921-76eb20700760"

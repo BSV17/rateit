@@ -1,0 +1,16 @@
+name = "rateit"
+compatibility_date = "2026-10-07"
+pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "rateit-db"
+database_id = "PASTE_D1_DATABASE_ID_HERE"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "rateit-images"
+
+[[r2_buckets]]
+binding = "BACKUPS"
+bucket_name = "rateit-backups"
