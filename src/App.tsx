@@ -643,7 +643,7 @@ function SettingsView({
       </div>
       <div className="settings-group">
         <h2>Інформація</h2>
-        <p className="muted">RateIt 0.1.0 · зовнішні дані: Open Products Facts, Open Food Facts.</p>
+        <p className="muted">RateIt 0.1.0 · фото додаються вручну.</p>
       </div>
     </section>
   )
