@@ -153,12 +153,12 @@ const localDb = {
     const current = draft.id ? await this.getProduct(draft.id) : undefined
     const product: Product = {
       id: draft.id ?? uid(),
-      name: draft.name.trim(),
+      name: draft.name.trim() || 'Без назви',
       barcode: draft.barcode?.trim() || null,
       imagePath: draft.imagePath ?? current?.imagePath ?? null,
       rating: draft.rating,
       note: draft.note.trim(),
-      categoryId: draft.categoryId,
+      categoryId: draft.categoryId || null,
       createdAt: current?.createdAt ?? timestamp,
       updatedAt: timestamp,
       externalSource: draft.externalSource ?? current?.externalSource ?? null,

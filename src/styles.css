@@ -79,6 +79,7 @@ input,
 select,
 textarea {
   width: 100%;
+  min-height: 52px;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--surface-strong);
@@ -89,6 +90,23 @@ textarea {
 
 textarea {
   resize: vertical;
+}
+
+select {
+  appearance: none;
+  min-width: 0;
+  padding-right: 42px;
+  line-height: 1.25;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) 50%,
+    calc(100% - 14px) 50%;
+  background-size:
+    6px 6px,
+    6px 6px;
+  background-repeat: no-repeat;
 }
 
 label {
@@ -393,6 +411,12 @@ h2 {
   gap: 12px;
 }
 
+.image-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
 .image-picker img,
 .image-picker .image-placeholder {
   width: 100%;
@@ -429,10 +453,13 @@ h2 {
   min-height: 44px;
   align-items: center;
   justify-content: center;
+  gap: 8px;
+  padding: 0 14px;
   border-radius: 14px;
   background: var(--surface-strong);
   border: 1px solid var(--line);
   cursor: pointer;
+  text-align: center;
 }
 
 .file-button input {

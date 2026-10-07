@@ -19,8 +19,8 @@ type View =
   | { name: 'settings' }
 
 const productSchema = z.object({
-  name: z.string().min(1),
-  categoryId: z.string().min(1),
+  name: z.string(),
+  categoryId: z.string().nullable().optional(),
   rating: z.number().min(1).max(10),
 })
 
@@ -63,13 +63,18 @@ export default function App() {
 
   async function saveProduct(draft: ProductDraft) {
     try {
-      productSchema.parse(draft)
-      const saved = await db.saveProduct(draft)
+      const normalizedDraft = {
+        ...draft,
+        name: draft.name.trim() || 'Без назви',
+        categoryId: draft.categoryId || null,
+      }
+      productSchema.parse(normalizedDraft)
+      const saved = await db.saveProduct(normalizedDraft)
       await refresh()
       setView({ name: 'product', id: saved.id })
       showToast('Збережено')
     } catch (error) {
-      showToast(error instanceof Error && error.message === 'barcode-exists' ? 'Такий штрихкод уже є в базі' : 'Перевірте обовʼязкові поля')
+      showToast(error instanceof Error && error.message === 'barcode-exists' ? 'Такий штрихкод уже є в базі' : 'Не вдалося зберегти товар')
     }
   }
 
@@ -431,12 +436,6 @@ function ProductForm({
   return (
     <section className="stack">
       <SectionHeader title={product ? 'Редагування' : external ? 'Додати знайдений товар' : 'Новий товар'} action="Скасувати" onAction={onCancel} />
-      {external && (
-        <div className="notice">
-          <strong>Можливий збіг</strong>
-          <span>Перевірте назву й фото перед збереженням.</span>
-        </div>
-      )}
       <div className="form-card">
         <ImagePicker imagePath={imagePath} setImagePath={setImagePath} />
         <label>
@@ -444,7 +443,7 @@ function ProductForm({
           <input value={name} onChange={(event) => setName(event.target.value)} placeholder="Назва товару" />
         </label>
         <label>
-          Штрихкод <span className="optional">необовʼязково</span>
+          Штрихкод
           <input inputMode="numeric" value={barcode} onChange={(event) => setBarcode(event.target.value)} placeholder="EAN / UPC" />
         </label>
         <label>
@@ -669,16 +668,40 @@ function ProductImage({ product }: { product: Pick<Product, 'name' | 'imagePath'
 }
 
 function ImagePicker({ imagePath, setImagePath }: { imagePath: string; setImagePath: (path: string) => void }) {
+  async function selectImage(file?: File) {
+    if (file) setImagePath(await fileToDataUrl(file))
+  }
+
   return (
     <div className="image-picker">
       {imagePath ? <img src={imagePath} alt="" /> : <div className="image-placeholder">Фото</div>}
-      <label className="file-button">
-        Вибрати фото
-        <input type="file" accept="image/*" capture="environment" onChange={async (event) => {
-          const file = event.target.files?.[0]
-          if (file) setImagePath(await fileToDataUrl(file))
-        }} />
-      </label>
+      <div className="image-actions">
+        <label className="file-button">
+          <Camera size={18} />
+          Зробити фото
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={async (event) => {
+              await selectImage(event.target.files?.[0])
+              event.currentTarget.value = ''
+            }}
+          />
+        </label>
+        <label className="file-button">
+          <Folder size={18} />
+          Галерея
+          <input
+            type="file"
+            accept="image/*"
+            onChange={async (event) => {
+              await selectImage(event.target.files?.[0])
+              event.currentTarget.value = ''
+            }}
+          />
+        </label>
+      </div>
     </div>
   )
 }

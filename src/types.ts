@@ -40,7 +40,7 @@ export interface ProductDraft {
   imagePath?: string | null
   rating: number
   note: string
-  categoryId: string
+  categoryId?: string | null
   externalSource?: string | null
   externalProductId?: string | null
   externalMetadata?: Record<string, unknown> | null

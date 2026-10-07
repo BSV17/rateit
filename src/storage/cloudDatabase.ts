@@ -19,11 +19,15 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
 async function uploadImage(imagePath?: string | null) {
   if (!imagePath?.startsWith('data:image/')) return imagePath ?? null
-  const result = await request<{ imagePath: string }>('/api/images', {
-    method: 'POST',
-    body: JSON.stringify({ dataUrl: imagePath }),
-  })
-  return result.imagePath
+  try {
+    const result = await request<{ imagePath: string }>('/api/images', {
+      method: 'POST',
+      body: JSON.stringify({ dataUrl: imagePath }),
+    })
+    return result.imagePath
+  } catch {
+    return imagePath
+  }
 }
 
 export const cloudDb = {

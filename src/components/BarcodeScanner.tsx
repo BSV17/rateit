@@ -11,12 +11,21 @@ export function BarcodeScanner({ onDetected }: { onDetected: (barcode: string) =
     const reader = new BrowserMultiFormatReader()
     let scannerControls: IScannerControls | null = null
 
+    function stopCamera() {
+      scannerControls?.stop()
+      const stream = videoRef.current?.srcObject
+      if (stream instanceof MediaStream) {
+        stream.getTracks().forEach((track) => track.stop())
+      }
+      if (videoRef.current) videoRef.current.srcObject = null
+    }
+
     reader
       .decodeFromVideoDevice(undefined, videoRef.current!, (result, error, controls) => {
         scannerControls = controls
         if (!active) return
         if (result) {
-          controls.stop()
+          stopCamera()
           setMessage('Штрихкод зчитано')
           onDetected(result.getText())
         }
@@ -28,7 +37,7 @@ export function BarcodeScanner({ onDetected }: { onDetected: (barcode: string) =
 
     return () => {
       active = false
-      scannerControls?.stop()
+      stopCamera()
     }
   }, [onDetected])
 

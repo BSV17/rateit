@@ -56,7 +56,7 @@ export function productParams(product, id = crypto.randomUUID()) {
   const timestamp = nowIso()
   return {
     id,
-    name: String(product.name ?? '').trim(),
+    name: String(product.name ?? '').trim() || 'Без назви',
     barcode: product.barcode ? String(product.barcode).trim() : null,
     imagePath: product.imagePath ?? null,
     rating: Number(product.rating),
@@ -72,8 +72,6 @@ export function productParams(product, id = crypto.randomUUID()) {
 }
 
 export function assertProduct(product) {
-  if (!String(product.name ?? '').trim()) throw new Error('name-required')
-  if (!String(product.categoryId ?? '').trim()) throw new Error('category-required')
   const rating = Number(product.rating)
   if (!Number.isInteger(rating) || rating < 1 || rating > 10) throw new Error('rating-invalid')
 }
