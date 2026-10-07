@@ -41,16 +41,35 @@ export default function App() {
     [products],
   )
 
-  async function refresh() {
+  const refresh = useCallback(async () => {
     setProducts(await db.listProducts())
     setCategories(await db.listCategories())
-  }
+  }, [])
 
   useEffect(() => {
     db.seedIfEmpty()
       .then(refresh)
       .finally(() => setLoading(false))
-  }, [])
+  }, [refresh])
+
+  useEffect(() => {
+    async function syncIfVisible() {
+      if (document.visibilityState !== 'visible') return
+      await refresh().catch(() => undefined)
+    }
+
+    window.addEventListener('focus', syncIfVisible)
+    window.addEventListener('online', syncIfVisible)
+    document.addEventListener('visibilitychange', syncIfVisible)
+    const intervalId = window.setInterval(syncIfVisible, 30000)
+
+    return () => {
+      window.removeEventListener('focus', syncIfVisible)
+      window.removeEventListener('online', syncIfVisible)
+      document.removeEventListener('visibilitychange', syncIfVisible)
+      window.clearInterval(intervalId)
+    }
+  }, [refresh])
 
   useEffect(() => {
     localStorage.setItem(themeKey, theme)
